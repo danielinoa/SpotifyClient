@@ -29,10 +29,9 @@ final class SpotifyAuth {
     
     // MARK: - Credentials
     
-    let clientID = "[CLIENT_ID]"
-    let clientSecret = "[CLIENT_SECRET]"
     let redirectURI = "spotifyclient://"
     let responseType = "code"
+    let scope = "playlist-modify-public"
     
     // MARK: - Authentication
     
@@ -44,8 +43,9 @@ final class SpotifyAuth {
         let clientIdQuery = URLQueryItem(name: "client_id", value: clientID)
         let redirectUriQuery = URLQueryItem(name: "redirect_uri", value: redirectURI)
         let responseTypeQuery = URLQueryItem(name: "response_type", value: responseType)
+        let scopeTypeQuery = URLQueryItem(name: "scope", value: scope)
         var urlComponents = URLComponents(string: SpotifyEndpoint.authentication.urlString)
-        urlComponents?.queryItems = [clientIdQuery, redirectUriQuery, responseTypeQuery]
+        urlComponents?.queryItems = [clientIdQuery, redirectUriQuery, responseTypeQuery, scopeTypeQuery]
         if let url = urlComponents?.url {
             return url
         } else {
@@ -144,7 +144,7 @@ final class SpotifyAuth {
     }
     
     /**
-     Removes the stored session.
+     Removes stored session, and notifes delegate of session change.
      */
     func clearSession() {
         session = nil
