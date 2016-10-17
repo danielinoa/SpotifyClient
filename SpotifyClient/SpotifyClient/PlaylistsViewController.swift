@@ -16,6 +16,8 @@ final class PlaylistsViewController: UITableViewController {
     
     fileprivate let playlistsDataSource = PlaylistsDataSource()
     
+    fileprivate var userID: String?
+    
     fileprivate var playlists: [Playlist] {
         return playlistsDataSource.playlists
     }
@@ -24,18 +26,22 @@ final class PlaylistsViewController: UITableViewController {
         return SpotifyAuth.shared
     }
     
+    // MARK: - View Lifecycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         tableView.register(PlaylistTableViewCell.classForCoder(), forCellReuseIdentifier: PlaylistTableViewCell.cellIdentifier)
-        
         title = "Playlists"
         
         let logoutBarButtonItem = UIBarButtonItem(title: "Logout", style: .plain, target: self, action: #selector(logoutAction(_:)))
         let addPlaylistBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addPlaylistAction))
-        
         navigationItem.leftBarButtonItem = logoutBarButtonItem
         navigationItem.rightBarButtonItem = addPlaylistBarButtonItem
+        
+        let refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: #selector(refresh(_:)), for: .valueChanged)
+        self.refreshControl = refreshControl
+        
         fetchMe()
     }
     
@@ -45,8 +51,7 @@ final class PlaylistsViewController: UITableViewController {
             self.tableView.reloadData()
         }
     }
-    
-    fileprivate var userID: String?
+    // MARK: -
     
     private func fetchMe(completion: ((_ userID: String) -> Void)? = nil) {
         guard let session = auth.session else {
@@ -93,6 +98,15 @@ final class PlaylistsViewController: UITableViewController {
         present(alertController, animated: true, completion: {})
     }
     
+    @objc fileprivate func refresh(_ sender: AnyObject?) {
+        playlistsDataSource.fetchPlaylists { _ in
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
+                self.refreshControl?.endRefreshing()
+            }
+        }
+    }
+    
     // MARK: - UITableViewDataSource
     
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -116,6 +130,10 @@ final class PlaylistsViewController: UITableViewController {
         let playlistViewController = PlaylistViewController(playlist: playlist)
         playlistViewController.delegate = self
         show(playlistViewController, sender: self)
+    }
+    
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 60
     }
     
 }

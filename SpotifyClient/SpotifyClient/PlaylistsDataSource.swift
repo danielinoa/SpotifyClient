@@ -97,10 +97,4 @@ final class PlaylistsDataSource {
         }
     }
     
-    /**
-     Resets the page number to 1 and clear the playlists array
-     */
-    func reset() {
-        playlists = []
-    }
 }
