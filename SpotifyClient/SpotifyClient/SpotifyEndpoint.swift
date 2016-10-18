@@ -45,6 +45,11 @@ enum SpotifyEndpoint {
      */
     case updatePlaylist(userID: String, playlistID: String)
     
+    /**
+     Endpoint to retrieve full details of the tracks of a playlist owned by a Spotify user.
+     */
+    case playlistTracks(ownerID: String, playlistID: String)
+    
     // MARK: - URL
     
     /**
@@ -59,6 +64,7 @@ enum SpotifyEndpoint {
             case .playlists: urlString = "https://api.spotify.com/v1/me/playlists"
             case .createPlaylist(let userID): urlString = "https://api.spotify.com/v1/users/\(userID)/playlists"
             case .updatePlaylist(let userID, let playlistID): urlString = "https://api.spotify.com/v1/users/\(userID)/playlists/\(playlistID)"
+            case .playlistTracks(let ownerID, let playlistID): urlString = "https://api.spotify.com/v1/users/\(ownerID)/playlists/\(playlistID)/tracks"
         }
         return urlString
     }

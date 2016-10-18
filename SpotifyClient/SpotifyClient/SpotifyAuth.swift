@@ -71,12 +71,8 @@ final class SpotifyAuth {
     }
     
     private var authenticationCode: String? {
-        get {
-            return UserDefaults.standard.string(forKey: "authorizationCode")
-        }
-        set {
-            UserDefaults.standard.set(newValue, forKey: "authorizationCode")
-        }
+        get { return UserDefaults.standard.string(forKey: "authorizationCode") }
+        set { UserDefaults.standard.set(newValue, forKey: "authorizationCode") }
     }
     
     /**
@@ -106,17 +102,15 @@ final class SpotifyAuth {
                                          "client_secret": clientSecret]
         let request = Alamofire.request(SpotifyEndpoint.token.urlString, method: .post, parameters: parameters)
         request.responseJSON { response in
-            do {
-                let json = try JSONSerialization.jsonObject(with: response.data!, options: .allowFragments)
-                if let dictionary = json as? [String: Any],
-                   let session = SpotifySession(tokensDictionary: dictionary) {
+            if let json = try? JSONSerialization.jsonObject(with: response.data!, options: .allowFragments),
+                let dictionary = json as? [String: Any] {
+                    let session = SpotifySession(tokensDictionary: dictionary)
                     self.session = session
-                    self.delegate?.sessionUpdated(in: self)
-                } else {
-                    // TODO: handle failure
-                }
-            } catch {
-                // TODO: handle failure
+                    self.fetchCurrentUser(completion: { _ in
+                        self.delegate?.sessionUpdated(in: self)
+                    })
+            } else {
+                
             }
         }
     }
@@ -144,11 +138,46 @@ final class SpotifyAuth {
     }
     
     /**
-     Removes stored session, and notifes delegate of session change.
+     Removes stored session and user, and notifes delegate of session change.
      */
-    func clearSession() {
+    func clear() {
         session = nil
+        user = nil
         delegate?.sessionUpdated(in: self)
+    }
+    
+    // MARK: - User
+    
+    private(set) var user: SpotifyUser? {
+        get {
+            guard let userData = UserDefaults.standard.data(forKey: "userData") else { return nil }
+            guard let user = SpotifyUser.deserialize(with: userData) else { return nil }
+            return user
+        }
+        set {
+            UserDefaults.standard.set(newValue?.serialized, forKey: "userData")
+        }
+    }
+    
+    private func fetchCurrentUser(completion: ((_ user: SpotifyUser?) -> Void)? = nil) {
+        guard let session = SpotifyAuth.shared.session else {
+            completion?(nil)
+            return
+        }
+        let headers = Alamofire.HTTPHeaders(dictionaryLiteral: ("Authorization", "Bearer \(session.accessToken)"))
+        let request = Alamofire.request(SpotifyEndpoint.me.urlString, headers: headers)
+        request.responseJSON { response in
+            if let json = try? JSONSerialization.jsonObject(with: response.data!, options: .allowFragments), let dictionary = json as? [String: Any] {
+                if let user = SpotifyUser(dictionary: dictionary) {
+                    self.user = user
+                    completion?(user)
+                } else {
+                    completion?(nil)
+                }
+            } else {
+                completion?(nil)
+            }
+        }
     }
     
 }

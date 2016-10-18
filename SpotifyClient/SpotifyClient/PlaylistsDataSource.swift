@@ -24,8 +24,8 @@ final class PlaylistsDataSource {
     
     func fetchPlaylists(completion: ((_ playlists: [Playlist]?) -> Void)? = nil) {
         guard let session = auth.session else {
-            // TODO: handle this
-            fatalError()
+            completion?(nil)
+            return
         }
         let headers = Alamofire.HTTPHeaders(dictionaryLiteral: ("Authorization", "Bearer \(session.accessToken)"))
         let request = Alamofire.request(SpotifyEndpoint.playlists.urlString, headers: headers)
@@ -44,10 +44,10 @@ final class PlaylistsDataSource {
         }
     }
     
-    func createPlaylist(name: String, userID: String, completion: ((_ playlist: Playlist?) -> Void)? = nil) {
-        guard let session = auth.session else {
-            // TODO: handle this
-            fatalError()
+    func createPlaylist(name: String, completion: ((_ playlist: Playlist?) -> Void)? = nil) {
+        guard let session = auth.session, let userID = auth.user?.id else {
+            completion?(nil)
+            return
         }
         let headers = Alamofire.HTTPHeaders(dictionaryLiteral: ("Authorization", "Bearer \(session.accessToken)"))
         
@@ -69,10 +69,10 @@ final class PlaylistsDataSource {
         }
     }
     
-    func update(playlist: Playlist, withName name: String, userID: String, completion: ((_ playlist: Playlist?) -> Void)? = nil) {
-        guard let session = auth.session else {
-            // TODO: handle this
-            fatalError()
+    func update(playlist: Playlist, withName name: String, completion: ((_ playlist: Playlist?) -> Void)? = nil) {
+        guard let session = auth.session, let userID = auth.user?.id else {
+            completion?(nil)
+            return
         }
         let headers = Alamofire.HTTPHeaders(dictionaryLiteral: ("Authorization", "Bearer \(session.accessToken)"))
         let parameters: [String: Any] = ["name": name]

@@ -18,14 +18,24 @@ struct Playlist: CustomStringConvertible {
     init?(dictionary: [String: Any]) {
         guard let id = dictionary["id"] as? String, !id.isEmpty else { return nil }
         guard let name = dictionary["name"] as? String, !name.isEmpty else { return nil }
-        self.id = id
+        guard let owner = (dictionary["owner"] as? [String: Any])?["id"] as? String, !owner.isEmpty else { return nil }
         self.name = name
         dictionaryRepresentation = dictionary
     }
     
     // MARK: - 
     
-    let id: String
+    var id: String {
+        guard let id = dictionaryRepresentation["id"] as? String, !id.isEmpty else {
+            fatalError("Expects a valid id")
+        }
+        return id
+    }
+    
+    /**
+     Modifying the name locally, does not modify the name remotely.
+     - seealso: `PlaylistsDataSource.update`
+     */
     var name: String
     
     var numberOfTracks: Int? {
@@ -33,6 +43,13 @@ struct Playlist: CustomStringConvertible {
             return nil
         }
         return tracksDictionary["total"] as? Int
+    }
+    
+    var owner: String {
+        guard let owner = (dictionaryRepresentation["owner"] as? [String: Any])?["id"] as? String else {
+            fatalError("Expects a valid owner")
+        }
+        return owner
     }
     
     // MARK: - CustomStringConvertible

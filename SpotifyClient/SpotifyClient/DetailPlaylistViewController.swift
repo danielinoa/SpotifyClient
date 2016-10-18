@@ -1,5 +1,5 @@
 //
-//  PlaylistTableViewController.swift
+//  DetailPlaylistViewController.swift
 //  SpotifyClient
 //
 //  Created by Daniel Inoa on 10/16/16.
@@ -8,16 +8,22 @@
 
 import UIKit
 
-protocol PlaylistViewControllerDelegate: class {
-    func renamed(name: String, playlist: Playlist, in: PlaylistViewController)
+protocol DetailPlaylistViewControllerDelegate: class {
+    func renamed(name: String, playlist: Playlist, in: DetailPlaylistViewController)
 }
 
 /**
  This view controller manages and displays a playlist.
  */
-class PlaylistViewController: UITableViewController {
+class DetailPlaylistViewController: UITableViewController {
     
-    weak var delegate: PlaylistViewControllerDelegate?
+    weak var delegate: DetailPlaylistViewControllerDelegate?
+    
+    let tracksDataSource: PlaylistsTracksDataSource
+    
+    fileprivate var tracks: [Track] {
+        return tracksDataSource.tracks
+    }
     
     private var playlist: Playlist {
         didSet {
@@ -25,13 +31,18 @@ class PlaylistViewController: UITableViewController {
         }
     }
     
+    // MARK: - Lifecycle
+    
     init(playlist: Playlist) {
         self.playlist = playlist
+        self.tracksDataSource = PlaylistsTracksDataSource(playlist: playlist)
         super.init(nibName: nil, bundle: nil)
     }
     
-    required init?(coder aDecoder: NSCoder) { fatalError("") }
-    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) { fatalError("") }
+    required init?(coder aDecoder: NSCoder) { fatalError("\(#function) not yet implemented.") }
+    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) { fatalError("\(#function) not yet implemented.") }
+    
+    // MARK: - View Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -39,8 +50,15 @@ class PlaylistViewController: UITableViewController {
         let actionBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(actionButtonTapped(_:)))
         navigationItem.rightBarButtonItems = [actionBarButtonItem]
     }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        tracksDataSource.fetchTracks { _ in
+            self.tableView.reloadData()
+        }
+    }
 
-    // MARK: - 
+    // MARK: - Actions
     
     @objc private func actionButtonTapped(_ sender: Any? = nil) {
         let actionController = UIAlertController.init(title: nil, message: nil, preferredStyle: .actionSheet)
@@ -54,7 +72,7 @@ class PlaylistViewController: UITableViewController {
     }
     
     private func showEditAlertController() {
-        let alertController = UIAlertController(title: "Edit Playlist", message: "Rename playlist", preferredStyle: .alert)
+        let alertController = UIAlertController(title: nil, message: "Rename playlist", preferredStyle: .alert)
         alertController.addTextField { textfield in
             textfield.text = self.playlist.name
             textfield.placeholder = "Playlist name..."
@@ -70,5 +88,26 @@ class PlaylistViewController: UITableViewController {
         alertController.addAction(dismissAction)
         present(alertController, animated: true, completion: {})
     }
-
+    
+    // MARK: - UITableViewDataSource
+    
+    override func numberOfSections(in tableView: UITableView) -> Int {
+        return 1
+    }
+    
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return "Tracks"
+    }
+    
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return tracks.count
+    }
+    
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "trackCell") ?? UITableViewCell(style: .default, reuseIdentifier: "trackCell")
+        cell.textLabel?.text = tracks[indexPath.row].name
+        return cell
+    }
+    
+    
 }

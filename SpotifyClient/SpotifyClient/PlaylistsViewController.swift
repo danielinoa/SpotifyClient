@@ -16,13 +16,11 @@ final class PlaylistsViewController: UITableViewController {
     
     fileprivate let playlistsDataSource = PlaylistsDataSource()
     
-    fileprivate var userID: String?
-    
     fileprivate var playlists: [Playlist] {
         return playlistsDataSource.playlists
     }
     
-    private var auth: SpotifyAuth {
+    fileprivate var auth: SpotifyAuth {
         return SpotifyAuth.shared
     }
     
@@ -41,8 +39,6 @@ final class PlaylistsViewController: UITableViewController {
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(refresh(_:)), for: .valueChanged)
         self.refreshControl = refreshControl
-        
-        fetchMe()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -51,29 +47,11 @@ final class PlaylistsViewController: UITableViewController {
             self.tableView.reloadData()
         }
     }
-    // MARK: -
-    
-    private func fetchMe(completion: ((_ userID: String) -> Void)? = nil) {
-        guard let session = auth.session else {
-            // TODO: handle this
-            fatalError()
-        }
-        let headers = Alamofire.HTTPHeaders(dictionaryLiteral: ("Authorization", "Bearer \(session.accessToken)"))
-        let request = Alamofire.request(SpotifyEndpoint.me.urlString, headers: headers)
-        request.responseJSON { response in
-            if let json = try? JSONSerialization.jsonObject(with: response.data!, options: .allowFragments), let dictionary = json as? [String: Any] {
-                if let userID = dictionary["id"] as? String {
-                    self.userID =  userID
-                    completion?(userID)
-                }
-            }
-        }
-    }
     
     // MARK: - Actions
     
     @objc private func logoutAction(_ sender: AnyObject) {
-        auth.clearSession()
+        auth.clear()
     }
     
     @objc private func addPlaylistAction() {
@@ -81,17 +59,13 @@ final class PlaylistsViewController: UITableViewController {
         alertController.addTextField { textfield in
             textfield.placeholder = "Playlist name..."
         }
-        let createAction = UIAlertAction(title: "Create", style: .default, handler: { _ in
-             if let playlistName = alertController.textFields?.first?.text {
-                // make sure is not empty
-                if let userID = self.userID {
-                    self.playlistsDataSource.createPlaylist(name: playlistName, userID: userID, completion: { _ in
-                        self.tableView.reloadData()
-                    })
+        let createAction = UIAlertAction(title: "Create", style: .default) { _ in
+             if let playlistName = alertController.textFields?.first?.text, !playlistName.isEmpty {
+                self.playlistsDataSource.createPlaylist(name: playlistName) { _ in
+                    self.tableView.reloadData()
                 }
-                // model.addPlaylist(name: textField.text)
              }
-        })
+        }
         let dismissAction = UIAlertAction(title: "Dismiss", style: .cancel, handler: { _ in })
         alertController.addAction(createAction)
         alertController.addAction(dismissAction)
@@ -127,7 +101,7 @@ final class PlaylistsViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let playlist = playlists[indexPath.row]
-        let playlistViewController = PlaylistViewController(playlist: playlist)
+        let playlistViewController = DetailPlaylistViewController(playlist: playlist)
         playlistViewController.delegate = self
         show(playlistViewController, sender: self)
     }
@@ -138,15 +112,13 @@ final class PlaylistsViewController: UITableViewController {
     
 }
 
-extension PlaylistsViewController: PlaylistViewControllerDelegate {
+extension PlaylistsViewController: DetailPlaylistViewControllerDelegate {
     
-    // MARK: - PlaylistViewControllerDelegate
+    // MARK: - DetailPlaylistViewControllerDelegate
     
-    func renamed(name: String, playlist: Playlist, in: PlaylistViewController) {
-        if let userID = self.userID {
-            playlistsDataSource.update(playlist: playlist, withName: name, userID: userID, completion: { _ in
-                self.tableView.reloadData()
-            })
+    func renamed(name: String, playlist: Playlist, in: DetailPlaylistViewController) {
+        playlistsDataSource.update(playlist: playlist, withName: name) { _ in
+            self.tableView.reloadData()
         }
     }
     
