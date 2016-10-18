@@ -8,7 +8,7 @@
 
 import UIKit
 
-class NavigationViewController: UINavigationController, SpotifyAuthDelegate {
+final class NavigationViewController: UINavigationController, SpotifyAuthDelegate {
 
     // MARK: - Lifecycle
     

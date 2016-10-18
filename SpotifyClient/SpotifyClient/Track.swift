@@ -36,6 +36,25 @@ struct Track {
         return name
     }
     
+    var imageUrl: String? {
+        if let albumDictionary = trackDictionary["album"] as? [String: Any],
+            let imageDictionaries = albumDictionary["images"] as? [[String: Any]],
+            let firstImageDictionary = imageDictionaries.first {
+            return firstImageDictionary["url"] as? String
+        }
+        return nil
+    }
+    
+    var artist: String? {
+        if let artistDictionaries = trackDictionary["artists"] as? [[String: Any]] {
+            let artistNames = artistDictionaries.flatMap({ $0["name"] as? String })
+            return artistNames.joined(separator: " - ")
+        }
+        return nil
+    }
+    
+    // MARK: -
+    
     init?(dictionary: [String: Any]) {
         guard let trackDictionary = dictionary["track"] as? [String: Any] else { return nil }
         guard let id = trackDictionary["id"] as? String, !id.isEmpty else { return nil }

@@ -12,7 +12,7 @@ import Alamofire
 /**
  This class manages a set of tracks belonging to a playlist.
  */
-class PlaylistsTracksDataSource {
+final class PlaylistsTracksDataSource {
     
     // TODO: implement pagination
     

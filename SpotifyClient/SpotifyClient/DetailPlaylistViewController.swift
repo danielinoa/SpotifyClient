@@ -15,7 +15,7 @@ protocol DetailPlaylistViewControllerDelegate: class {
 /**
  This view controller manages and displays a playlist.
  */
-class DetailPlaylistViewController: UITableViewController {
+final class DetailPlaylistViewController: UITableViewController {
     
     weak var delegate: DetailPlaylistViewControllerDelegate?
     
@@ -109,5 +109,13 @@ class DetailPlaylistViewController: UITableViewController {
         return cell
     }
     
+    // MARK: - UITableViewDelegate
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let track = tracks[indexPath.row]
+        let trackViewController = TrackViewController(track: track)
+//        trackViewController.delegate = self
+        present(trackViewController, animated: true, completion: nil)
+    }
     
 }
