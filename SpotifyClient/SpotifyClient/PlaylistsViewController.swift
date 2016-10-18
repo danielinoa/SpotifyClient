@@ -28,7 +28,7 @@ final class PlaylistsViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        tableView.register(PlaylistTableViewCell.classForCoder(), forCellReuseIdentifier: PlaylistTableViewCell.cellIdentifier)
+        
         title = "Playlists"
         
         let logoutBarButtonItem = UIBarButtonItem(title: "Logout", style: .plain, target: self, action: #selector(logoutAction(_:)))
@@ -92,8 +92,12 @@ final class PlaylistsViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: PlaylistTableViewCell.cellIdentifier, for: indexPath) as! PlaylistTableViewCell
-        cell.configure(playlist: playlists[indexPath.row])
+        let cell = tableView.dequeueReusableCell(withIdentifier: "playlistCell") ?? UITableViewCell(style: .subtitle, reuseIdentifier: "playlistCell")
+        let playlist = playlists[indexPath.row]
+        cell.textLabel?.text = playlist.name
+        if let numberOfTracks = playlist.numberOfTracks {
+            cell.detailTextLabel?.text = "\(numberOfTracks) tracks"
+        }
         return cell
     }
     
