@@ -29,6 +29,15 @@ final class SpotifyAuth {
     
     // MARK: - Credentials
     
+    var clientID: String {
+        fatalError("Remove this fatal error and assign/return a valid clientID. \(#file)")
+    }
+    
+    var clientSecret: String {
+        fatalError("Remove this fatal error and assign/return a valid clientSecret. \(#file)")
+    }
+    
+    
     let redirectURI = "spotifyclient://"
     let responseType = "code"
     let scope = "playlist-modify-public"
