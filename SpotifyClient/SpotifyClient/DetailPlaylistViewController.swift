@@ -19,7 +19,7 @@ final class DetailPlaylistViewController: UITableViewController {
     
     weak var delegate: DetailPlaylistViewControllerDelegate?
     
-    let tracksDataSource: PlaylistsTracksDataSource
+    let tracksDataSource: PlaylistTracksDataSource
     
     fileprivate var tracks: [Track] {
         return tracksDataSource.tracks
@@ -35,7 +35,7 @@ final class DetailPlaylistViewController: UITableViewController {
     
     init(playlist: Playlist) {
         self.playlist = playlist
-        self.tracksDataSource = PlaylistsTracksDataSource(playlist: playlist)
+        self.tracksDataSource = PlaylistTracksDataSource(playlist: playlist)
         super.init(nibName: nil, bundle: nil)
     }
     
