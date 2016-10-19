@@ -89,7 +89,6 @@
 		011CADA41DB1657E00E40923 /* SpotifyClient */ = {
 			isa = PBXGroup;
 			children = (
-				015BAEF21DB6BF4E003B0E52 /* SearchTracksViewController.swift */,
 				011CADA51DB1657E00E40923 /* AppDelegate.swift */,
 				0174BD691DB30E570056C418 /* NavigationViewController.swift */,
 				0174BD6D1DB3101B0056C418 /* Login */,
@@ -147,6 +146,7 @@
 			isa = PBXGroup;
 			children = (
 				01F55FBA1DB49231003E10DB /* Track.swift */,
+				015BAEF21DB6BF4E003B0E52 /* SearchTracksViewController.swift */,
 				01F55FBE1DB5C876003E10DB /* TrackViewController.swift */,
 				01F55FBF1DB5C876003E10DB /* TrackView.xib */,
 			);

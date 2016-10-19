@@ -22,6 +22,8 @@ final class PlaylistsDataSource {
     
     fileprivate(set) var playlists: [Playlist] = []
     
+    // MARK: - Fetch Playlists
+    
     func fetchPlaylists(completion: ((_ playlists: [Playlist]?) -> Void)? = nil) {
         guard let session = auth.session else {
             completion?(nil)
@@ -43,6 +45,8 @@ final class PlaylistsDataSource {
             }
         }
     }
+    
+    // MARK: - Create Playlist
     
     func createPlaylist(name: String, completion: ((_ playlist: Playlist?) -> Void)? = nil) {
         guard let session = auth.session, let userID = auth.user?.id else {
@@ -68,6 +72,8 @@ final class PlaylistsDataSource {
             }
         }
     }
+    
+    // MARK: - Update Playlist
     
     func update(playlist: Playlist, withName name: String, completion: ((_ playlist: Playlist?) -> Void)? = nil) {
         guard let session = auth.session, let userID = auth.user?.id else {

@@ -16,7 +16,7 @@ protocol SearchTracksViewControllerDelegate: class {
 /**
  This view manages the search, display, and selection of tracks based on a search query.
  */
-class SearchTracksViewController: UITableViewController {
+final class SearchTracksViewController: UITableViewController {
     
     private var tracks: [Track] = []
     

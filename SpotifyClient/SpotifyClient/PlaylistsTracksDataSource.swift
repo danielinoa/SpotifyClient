@@ -30,7 +30,7 @@ final class PlaylistTracksDataSource {
         self.playlist = playlist
     }
     
-    // MARK: -
+    // MARK: - Fetch Tracks
     
     func fetchTracks(completion: ((_ tracks: [Track]?) -> Void)? = nil) {
         guard let session = auth.session else {
@@ -41,22 +41,22 @@ final class PlaylistTracksDataSource {
         let endpoint = SpotifyEndpoint.playlistTracks(ownerID: playlist.owner, playlistID: playlist.id)
         let request = Alamofire.request(endpoint.urlString, headers: headers)
         request.responseJSON { response in
-            if let json = try? JSONSerialization.jsonObject(with: response.data!, options: .allowFragments), let dictionary = json as? [String: Any] {
-                if let items = dictionary["items"] as? [[String: Any]] {
-                    let tracks: [Track] = items.flatMap {
-                        guard let trackDictionary = $0["track"] as? [String: Any] else { return nil }
-                        return Track(dictionary: trackDictionary)
-                    }
-                    self.tracks = tracks
-                    completion?(tracks)
-                } else {
-                    completion?(nil)
+            if let json = try? JSONSerialization.jsonObject(with: response.data!, options: .allowFragments),
+                let dictionary = json as? [String: Any],
+                let items = dictionary["items"] as? [[String: Any]] {
+                let tracks: [Track] = items.flatMap {
+                    guard let trackDictionary = $0["track"] as? [String: Any] else { return nil }
+                    return Track(dictionary: trackDictionary)
                 }
+                self.tracks = tracks
+                completion?(tracks)
             } else {
                 completion?(nil)
             }
         }
     }
+    
+    // MARK: - Add Tracks
     
     func addTracks(tracks: [Track], completion: ((_ snapshotID: String?) -> Void)? = nil) {
         guard let session = auth.session else {
@@ -82,6 +82,8 @@ final class PlaylistTracksDataSource {
             }
         }
     }
+    
+    // MARK: - Remove Tracks
     
     func removeTracks(tracks: [Track], completion: ((_ snapshotID: String?) -> Void)? = nil) {
         guard let session = auth.session else {

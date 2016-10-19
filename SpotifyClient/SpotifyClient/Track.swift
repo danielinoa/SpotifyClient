@@ -46,7 +46,7 @@ struct Track {
         return nil
     }
     
-    // MARK: -
+    // MARK: - Lifecycle
     
     init?(dictionary: [String: Any]) {
         guard let id = dictionary["id"] as? String, !id.isEmpty else { return nil }

@@ -142,6 +142,8 @@ final class DetailPlaylistViewController: UITableViewController {
 
 extension DetailPlaylistViewController: SearchTracksViewControllerDelegate {
     
+    // MARK: - SearchTracksViewControllerDelegate
+    
     func added(tracks: [Track], in searchController: SearchTracksViewController) {
         if let topViewController = navigationController?.topViewController, topViewController == searchController {
             let _ = navigationController?.popViewController(animated: true)
@@ -156,6 +158,8 @@ extension DetailPlaylistViewController: SearchTracksViewControllerDelegate {
 }
 
 extension DetailPlaylistViewController: TrackViewControllerDelegate {
+    
+    // MARK: - TrackViewControllerDelegate
     
     func removed(track: Track, in trackViewController: TrackViewController) {
         trackViewController.dismiss(animated: true, completion: nil)

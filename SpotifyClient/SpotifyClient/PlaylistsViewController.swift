@@ -16,11 +16,11 @@ final class PlaylistsViewController: UITableViewController {
     
     fileprivate let playlistsDataSource = PlaylistsDataSource()
     
-    fileprivate var playlists: [Playlist] {
+    private var playlists: [Playlist] {
         return playlistsDataSource.playlists
     }
     
-    fileprivate var auth: SpotifyAuth {
+    private var auth: SpotifyAuth {
         return SpotifyAuth.shared
     }
     
@@ -72,7 +72,7 @@ final class PlaylistsViewController: UITableViewController {
         present(alertController, animated: true, completion: {})
     }
     
-    @objc fileprivate func refresh(_ sender: AnyObject?) {
+    @objc private func refresh(_ sender: AnyObject?) {
         playlistsDataSource.fetchPlaylists { _ in
             DispatchQueue.main.async {
                 self.tableView.reloadData()
