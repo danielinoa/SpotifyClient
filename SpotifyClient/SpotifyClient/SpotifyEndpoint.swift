@@ -41,6 +41,11 @@ enum SpotifyEndpoint {
     case createPlaylist(userID: String)
     
     /**
+     Endpoint to add one or more tracks to a user's playlist
+     */
+    case addTrackToPlaylist(userID: String, playlistID: String)
+    
+    /**
      Endpoint to modify a playlist’s name and public/private state.
      */
     case updatePlaylist(userID: String, playlistID: String)
@@ -49,6 +54,11 @@ enum SpotifyEndpoint {
      Endpoint to retrieve full details of the tracks of a playlist owned by a Spotify user.
      */
     case playlistTracks(ownerID: String, playlistID: String)
+    
+    /**
+     Endpoint to retrieve catalog information about artists, albums, tracks or playlists that match a keyword string.
+     */
+    case search
     
     // MARK: - URL
     
@@ -64,7 +74,9 @@ enum SpotifyEndpoint {
             case .playlists: urlString = "https://api.spotify.com/v1/me/playlists"
             case .createPlaylist(let userID): urlString = "https://api.spotify.com/v1/users/\(userID)/playlists"
             case .updatePlaylist(let userID, let playlistID): urlString = "https://api.spotify.com/v1/users/\(userID)/playlists/\(playlistID)"
+            case .addTrackToPlaylist(let userID, let playlistID): urlString = "https://api.spotify.com/v1/users/\(userID)/playlists/\(playlistID)/tracks"
             case .playlistTracks(let ownerID, let playlistID): urlString = "https://api.spotify.com/v1/users/\(ownerID)/playlists/\(playlistID)/tracks"
+            case .search: urlString = "https://api.spotify.com/v1/search"
         }
         return urlString
     }

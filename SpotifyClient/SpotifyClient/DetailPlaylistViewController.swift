@@ -47,8 +47,9 @@ final class DetailPlaylistViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = playlist.name
-        let actionBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(actionButtonTapped(_:)))
-        navigationItem.rightBarButtonItems = [actionBarButtonItem]
+        let actionBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(actionButtonTapped))
+        let searchBarButtonItem = UIBarButtonItem(barButtonSystemItem: .search, target: self, action: #selector(showSearchController))
+        navigationItem.rightBarButtonItems = [actionBarButtonItem, searchBarButtonItem]
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -60,7 +61,7 @@ final class DetailPlaylistViewController: UITableViewController {
 
     // MARK: - Actions
     
-    @objc private func actionButtonTapped(_ sender: Any? = nil) {
+    @objc private func actionButtonTapped() {
         let actionController = UIAlertController.init(title: nil, message: nil, preferredStyle: .actionSheet)
         let editAction = UIAlertAction(title: "Edit Playlist", style: .default, handler: { _ in
             self.showEditAlertController()
@@ -89,6 +90,24 @@ final class DetailPlaylistViewController: UITableViewController {
         present(alertController, animated: true, completion: {})
     }
     
+    @objc private func showSearchController() {
+        let alertController = UIAlertController(title: "Search New Track", message: "", preferredStyle: .alert)
+        alertController.addTextField { textfield in
+            textfield.placeholder = "Track name..."
+        }
+        let createAction = UIAlertAction(title: "Search", style: .default, handler: { _ in
+            if let searchQuery = alertController.textFields?.first?.text, !searchQuery.isEmpty {
+                let searchTracksController = SearchTracksViewController(searchQuery: searchQuery)
+                searchTracksController.delegate = self
+                self.show(searchTracksController, sender: self)
+            }
+        })
+        let dismissAction = UIAlertAction(title: "Dismiss", style: .cancel, handler: { _ in })
+        alertController.addAction(createAction)
+        alertController.addAction(dismissAction)
+        present(alertController, animated: true, completion: {})
+    }
+    
     // MARK: - UITableViewDataSource
     
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -104,8 +123,9 @@ final class DetailPlaylistViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "trackCell") ?? UITableViewCell(style: .default, reuseIdentifier: "trackCell")
+        let cell = tableView.dequeueReusableCell(withIdentifier: "trackCell") ?? UITableViewCell(style: .subtitle, reuseIdentifier: "trackCell")
         cell.textLabel?.text = tracks[indexPath.row].name
+        cell.detailTextLabel?.text = tracks[indexPath.row].artist
         return cell
     }
     
@@ -114,8 +134,24 @@ final class DetailPlaylistViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let track = tracks[indexPath.row]
         let trackViewController = TrackViewController(track: track)
-//        trackViewController.delegate = self
         present(trackViewController, animated: true, completion: nil)
     }
     
 }
+
+
+extension DetailPlaylistViewController: SearchTracksViewControllerDelegate {
+    
+    func added(tracks: [Track], in searchController: SearchTracksViewController) {
+        if let topViewController = navigationController?.topViewController, topViewController == searchController {
+            let _ = navigationController?.popViewController(animated: true)
+        }
+        tracksDataSource.addTracks(tracks: tracks) { _ in
+            self.tracksDataSource.fetchTracks { _ in
+                self.tableView.reloadData()
+            }
+        }
+    }
+    
+}
+
