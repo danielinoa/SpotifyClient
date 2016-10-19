@@ -9,6 +9,10 @@
 import UIKit
 import AlamofireImage
 
+protocol TrackViewControllerDelegate: class {
+    func removed(track: Track, in: TrackViewController)
+}
+
 /**
  This view controller displays detail information about a track.
  */
@@ -16,9 +20,11 @@ final class TrackViewController: UIViewController {
     
     let track: Track
     
-    @IBOutlet var trackLabel: UILabel!
-    @IBOutlet var artistLabel: UILabel!
-    @IBOutlet var trackImageView: UIImageView!
+    @IBOutlet private var trackLabel: UILabel!
+    @IBOutlet private var artistLabel: UILabel!
+    @IBOutlet private var trackImageView: UIImageView!
+    
+    weak var delegate: TrackViewControllerDelegate?
     
     // MARK: - Lifecycle
     
@@ -48,7 +54,7 @@ final class TrackViewController: UIViewController {
     }
     
     @IBAction func removeAction(_ sender: AnyObject) {
-        // TODO:
+        delegate?.removed(track: track, in: self)
     }
     
 }

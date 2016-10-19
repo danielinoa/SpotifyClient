@@ -51,6 +51,11 @@ enum SpotifyEndpoint {
     case updatePlaylist(userID: String, playlistID: String)
     
     /**
+     Endpoint to remove one or more tracks from a user’s playlist.
+     */
+    case deleteTrackFromPlaylist(userID: String, playlistID: String)
+    
+    /**
      Endpoint to retrieve full details of the tracks of a playlist owned by a Spotify user.
      */
     case playlistTracks(ownerID: String, playlistID: String)
@@ -75,6 +80,7 @@ enum SpotifyEndpoint {
             case .createPlaylist(let userID): urlString = "https://api.spotify.com/v1/users/\(userID)/playlists"
             case .updatePlaylist(let userID, let playlistID): urlString = "https://api.spotify.com/v1/users/\(userID)/playlists/\(playlistID)"
             case .addTrackToPlaylist(let userID, let playlistID): urlString = "https://api.spotify.com/v1/users/\(userID)/playlists/\(playlistID)/tracks"
+            case .deleteTrackFromPlaylist(let userID, let playlistID): urlString = "https://api.spotify.com/v1/users/\(userID)/playlists/\(playlistID)/tracks"
             case .playlistTracks(let ownerID, let playlistID): urlString = "https://api.spotify.com/v1/users/\(ownerID)/playlists/\(playlistID)/tracks"
             case .search: urlString = "https://api.spotify.com/v1/search"
         }

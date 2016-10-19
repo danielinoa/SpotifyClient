@@ -83,4 +83,29 @@ final class PlaylistsTracksDataSource {
         }
     }
     
+    func removeTracks(tracks: [Track], completion: ((_ snapshotID: String?) -> Void)? = nil) {
+        guard let session = auth.session else {
+            completion?(nil)
+            return
+        }
+        let headers = Alamofire.HTTPHeaders(dictionaryLiteral: ("Authorization", "Bearer \(session.accessToken)"))
+        let endpoint = SpotifyEndpoint.addTrackToPlaylist(userID: playlist.owner, playlistID: playlist.id)
+        
+        let tracksUri = tracks.map({ ["uri":"spotify:track:\($0.id)"]  })
+        let parameters = ["tracks": tracksUri]
+        
+        let request = Alamofire.request(endpoint.urlString,
+                                        method: .delete,
+                                        parameters: parameters,
+                                        encoding: JSONEncoding.default,
+                                        headers: headers)
+        request.responseJSON { response in
+            if let json = try? JSONSerialization.jsonObject(with: response.data!, options: .allowFragments), let dictionary = json as? [String: Any] {
+                completion?(dictionary["snapshot_id"] as? String)
+            } else {
+                completion?(nil)
+            }
+        }
+    }
+    
 }

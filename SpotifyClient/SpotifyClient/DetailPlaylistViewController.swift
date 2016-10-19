@@ -134,11 +134,11 @@ final class DetailPlaylistViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let track = tracks[indexPath.row]
         let trackViewController = TrackViewController(track: track)
+        trackViewController.delegate = self
         present(trackViewController, animated: true, completion: nil)
     }
     
 }
-
 
 extension DetailPlaylistViewController: SearchTracksViewControllerDelegate {
     
@@ -155,3 +155,15 @@ extension DetailPlaylistViewController: SearchTracksViewControllerDelegate {
     
 }
 
+extension DetailPlaylistViewController: TrackViewControllerDelegate {
+    
+    func removed(track: Track, in trackViewController: TrackViewController) {
+        trackViewController.dismiss(animated: true, completion: nil)
+        tracksDataSource.removeTracks(tracks: [track]) { _ in
+            self.tracksDataSource.fetchTracks { _ in
+                self.tableView.reloadData()
+            }
+        }
+    }
+    
+}
